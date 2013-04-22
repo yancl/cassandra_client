@@ -1,5 +1,5 @@
 import time
-from protocol.genpy.cassandra.ttypes import ConsistencyLevel
+from protocol.genpy.cassandra.ttypes import *
 
 class CassandraMetaAPI(object):
     def __init__(self, handle,
@@ -28,8 +28,10 @@ class CassandraMetaAPI(object):
                 strategy_class=self._strategy_class,
                 strategy_options=self._strategy_options, 
                 cf_defs=cf_defs)
-
         return self._handle.system_add_keyspace(ks_def=ks_def)
+
+    def drop_keyspace(self, name):
+        self._handle.system_drop_keyspace(name)
 
     def add_column_family(self, name, cf_name):
         self._set_keyspace(name)
@@ -40,6 +42,10 @@ class CassandraMetaAPI(object):
                     comparator_type=self._comparator_type)
 
         return self._handle.system_add_column_family(cf_def=cf_def)
+
+    def drop_column_family(self, name, cf_name):
+        self._set_keyspace(name)
+        self._handle.system_drop_column_family(cf_name)
 
     def describe_keyspace(self, keyspace):
         return self._handle.describe_keyspace(keyspace)
@@ -81,14 +87,14 @@ class CassandraAPI(object):
     def insert_column(self, pk, cf, name, value):
         column_parent = ColumnParent(column_family=cf)
         column = Column(name=name, value=value, timestamp=time.time())
-        return self._handle.insert(key=pk,
+        self._handle.insert(key=pk,
                     column_parent=column_parent,
                     column=column,
                     consistency_level=self._write_cons_level)
 
     def delete_column(self, pk, cf, name):
         column_path = ColumnPath(column_family=cf, column=name)
-        return self._handle.remove(pk,
+        self._handle.remove(pk,
               column_path = column_path,
               timestamp=time.time(),
               consistency_level=self._write_cons_level)
@@ -120,7 +126,7 @@ class CassandraAPI(object):
             for (cf, mutations) in batch_cfs.iteritems():
                 cf_map[cf] = mutations
             mutation_map[pk] = cf_map
-        return self._handle.batch_mutate(mutation_map=mutation_map,
+        self._handle.batch_mutate(mutation_map=mutation_map,
                     consistency_level=self._write_cons_level)
 
     def _set_keyspace(self, keyspace):
