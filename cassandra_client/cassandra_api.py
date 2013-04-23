@@ -108,9 +108,9 @@ class CassandraAPI(object):
                                   predicate=predicate,
                                   consistency_level=self._read_cons_level)
 
-    def select_slice(self, pk, cf, start="", finish=""):
+    def select_slice(self, pk, cf, start="", finish="",reversed=0,count=100):
         column_parent = ColumnParent(column_family=cf)
-        slice_range = SliceRange(start=start, finish=finish)
+        slice_range = SliceRange(start=start, finish=finish, reversed=reversed, count=count)
         predicate = SlicePredicate(slice_range=slice_range)
         return self._handle.get_slice(key=pk,
                                   column_parent=column_parent,
