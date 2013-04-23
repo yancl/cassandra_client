@@ -129,5 +129,13 @@ class CassandraAPI(object):
         self._handle.batch_mutate(mutation_map=mutation_map,
                     consistency_level=self._write_cons_level)
 
+    def add_counter(self, pk, cf, name, value):
+        column_parent = ColumnParent(column_family=cf)
+        column = CounterColumn(name=name, value=value)
+        self._handle.add(key=pk,
+                        column_parent=column_parent,
+                        column=column,
+                        consistency_level=self._write_cons_level)
+
     def _set_keyspace(self, keyspace):
         self._handle.set_keyspace(keyspace)
