@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, '../')
+sys.path.insert(0, '../cassandra_client')
 
 import time
 from protocol.genpy.cassandra import Cassandra
@@ -50,6 +50,9 @@ class TestCassandra(object):
         self._cassandra_api.insert_column(pk='2', cf=cf, name='name1', value='v1')
         vs = self._cassandra_api.select_slice(pk='2', cf=cf, start='',finish='')
         eq_(set([vs[0].column.value, vs[1].column.value]), set(['v0', 'v1']))
+
+    def test_get_range(self):
+        vs = self._cassandra_api.get_range(cf=cf, columns=[], start_key='', end_key='')
 
     def test_batch_update(self):
         timestamp = time.time()

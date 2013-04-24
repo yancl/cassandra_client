@@ -117,6 +117,17 @@ class CassandraAPI(object):
                                   predicate=predicate,
                                   consistency_level=self._read_cons_level)
 
+    def get_range(self, cf, columns, start_key="", end_key="", count=100):
+        column_parent = ColumnParent(column_family=cf)
+        #slice_range = SliceRange(start="", finish="", reversed=0, count=100)
+        #predicate = SlicePredicate(slice_range=slice_range)
+        predicate = SlicePredicate(column_names=columns)
+        range=KeyRange(start_key=start_key, end_key=end_key, count=count)
+        return self._handle.get_range_slices(column_parent=column_parent,
+                                                predicate=predicate,
+                                                range=range,
+                                                consistency_level=self._read_cons_level)
+
     def batch_update(self, cassandra_batch):
         mutation_map = {}
         batches = cassandra_batch.get()
