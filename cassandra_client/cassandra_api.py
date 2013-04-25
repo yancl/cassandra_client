@@ -7,7 +7,8 @@ class CassandraMetaAPI(object):
                     default_validation_class='org.apache.cassandra.db.marshal.UTF8Type',
                     comparator_type='org.apache.cassandra.db.marshal.UTF8Type',
                     strategy_class='org.apache.cassandra.locator.NetworkTopologyStrategy',
-                    strategy_options={'datacenter1': '1'}):
+                    #for replication_factor
+                    strategy_options={'DC1': '1'}):
 
         self._handle = handle
         self._key_validation_class = key_validation_class

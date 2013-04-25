@@ -6,13 +6,14 @@ from protocol.genpy.cassandra import Cassandra
 from protocol.genpy.cassandra.ttypes import *
 from cassandra_client import CassandraMetaAPI, CassandraAPI
 from thrift_client import thrift_client
+import conf
 
 from nose.tools import raises, ok_, eq_
+options = {'timeout':5}
 
-def get_new_service_client(port):
+def get_new_service_client():
     return thrift_client.ThriftClient(client_class=Cassandra.Client,
-                        servers=['127.0.0.1:'+str(port)])
-                        #servers=['192.168.0.186:'+str(port),'192.168.0.187:'+str(port)])
+                        servers=conf.SERVERS, options=options)
 
 
 keyspace = 'test'
@@ -20,24 +21,39 @@ cf = 'cf'
 
 def setUp():
     print 'add test keyspace'
-    cassandra_meta_api = CassandraMetaAPI(handle=get_new_service_client(port=9160))
-    cassandra_meta_api.add_keyspace(name=keyspace, cf_names=['cf'])
+    cassandra_meta_api = CassandraMetaAPI(handle=get_new_service_client())
+    try:
+        cassandra_meta_api.drop_keyspace(name=keyspace)
+    except Exception,e:
+        pass
+    try:
+        cassandra_meta_api.add_keyspace(name=keyspace, cf_names=['cf'])
+    except Exception, e:
+        pass
+    #ensure keyspace request finish
+    time.sleep(5)
 
 def tearDown():
     print 'drop test keyspace'
-    cassandra_meta_api = CassandraMetaAPI(handle=get_new_service_client(port=9160))
-    cassandra_meta_api.drop_keyspace(name=keyspace)
+    time.sleep(5)
+    cassandra_meta_api = CassandraMetaAPI(handle=get_new_service_client())
+    try:
+        cassandra_meta_api.drop_keyspace(name=keyspace)
+    except Exception,e:
+        pass
 
 class TestCassandra(object):
     def setUp(self):
-        self._cassandra_meta_api = CassandraMetaAPI(handle=get_new_service_client(port=9160))
-        self._cassandra_api = CassandraAPI(handle=get_new_service_client(port=9160), keyspace=keyspace)
+        self._cassandra_meta_api = CassandraMetaAPI(handle=get_new_service_client())
+        self._cassandra_api = CassandraAPI(handle=get_new_service_client(), keyspace=keyspace)
 
     def tearDown(self):
         pass
 
     def test_add_column_family(self):
         self._cassandra_meta_api.add_column_family(name=keyspace, cf_name='cf0')
+        #to ensure add request after drop request
+        time.sleep(3)
         self._cassandra_meta_api.drop_column_family(name=keyspace, cf_name='cf0')
 
     def test_select_column(self):
