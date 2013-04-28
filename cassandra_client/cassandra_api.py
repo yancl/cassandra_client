@@ -83,6 +83,7 @@ class CassandraAPI(object):
         self._set_keyspace(self._keyspace)
         self._read_cons_level = read_cons_level
         self._write_cons_level = write_cons_level
+        self._handle.add_callback('post_connect', self._post_connect_callback)
 
     def insert_column(self, pk, cf, name, value):
         column_parent = ColumnParent(column_family=cf)
@@ -150,3 +151,6 @@ class CassandraAPI(object):
 
     def _set_keyspace(self, keyspace):
         self._handle.set_keyspace(keyspace)
+
+    def _post_connect_callback(self):
+        self._set_keyspace(self._keyspace)
