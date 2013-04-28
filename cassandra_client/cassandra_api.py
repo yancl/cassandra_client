@@ -152,5 +152,5 @@ class CassandraAPI(object):
     def _set_keyspace(self, keyspace):
         self._handle.set_keyspace(keyspace)
 
-    def _post_connect_callback(self):
+    def _post_connect_callback(self, *args):
         self._set_keyspace(self._keyspace)
