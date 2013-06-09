@@ -80,7 +80,6 @@ class CassandraAPI(object):
 
         self._handle = handle
         self._keyspace = keyspace
-        self._set_keyspace(self._keyspace)
         self._read_cons_level = read_cons_level
         self._write_cons_level = write_cons_level
         self._handle.add_callback('post_connect', self._post_connect_callback)
